@@ -437,6 +437,7 @@ class InitCommand extends Command
             $basePath . '/src/Console/Application.php',
             $basePath . '/tests/TestCase.php',
             $basePath . '/tests/Hello/HelloComponentTest.php',
+            $basePath . '/tests/Logger/GetLoggerInstanceTest.php',
             $basePath . '/artisan',
         ];
 
