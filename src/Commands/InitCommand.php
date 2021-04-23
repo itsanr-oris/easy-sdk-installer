@@ -1,8 +1,10 @@
-<?php /** @noinspection PhpUndefinedClassInspection */
+<?php /** @noinspection PhpParamsInspection */
+/** @noinspection PhpUndefinedClassInspection */
 
 namespace Foris\Easy\Sdk\Installer\Commands;
 
 use Foris\Easy\Console\Commands\Command;
+use Foris\Easy\Support\Str;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -266,6 +268,7 @@ class InitCommand extends Command
 
         if (empty($author)) {
             $author = $this->getAuthorString();
+            $author = empty($author) ? 'developer <developer@easy-sdk.com>' : $author;
         }
 
         return $this->parseAuthorString($this->ask('Author (User <user@email.com>)', $author));
@@ -416,18 +419,28 @@ class InitCommand extends Command
      */
     protected function replacePackageNamespace(&$composer, $namespace)
     {
+        $originNamespace = 'Foris\\Easy\\Sdk\\Skeleton';
+
+        foreach ($composer['autoload']['psr-4'] as $key => $value) {
+            if ($value == 'src/') {
+                $originNamespace = Str::replaceLast('\\', '', $key);
+                break;
+            }
+        }
+
         $composer['autoload']['psr-4'] = [$namespace . '\\' => 'src/'];
         $composer['autoload-dev']['psr-4'] = [$namespace . '\\Tests\\' => 'tests/'];
-        return $this->replaceSdkClassNamespace($namespace);
+        return $this->replaceSdkClassNamespace($originNamespace, $namespace);
     }
 
     /**
      * Replace sdk class namespace
      *
+     * @param $originNamespace
      * @param $namespace
      * @return InitCommand
      */
-    protected function replaceSdkClassNamespace($namespace)
+    protected function replaceSdkClassNamespace($originNamespace, $namespace)
     {
         $basePath = getcwd() . '/' . $this->getDirectoryInput();
 
@@ -442,7 +455,7 @@ class InitCommand extends Command
         ];
 
         foreach ($files as $file) {
-            file_put_contents($file, str_replace('Foris\Easy\Sdk\Skeleton', $namespace, file_get_contents($file)));
+            file_put_contents($file, str_replace($originNamespace, $namespace, file_get_contents($file)));
         }
 
         return $this;
@@ -473,6 +486,7 @@ class InitCommand extends Command
 
         $commands = [
             $composer.' install --no-scripts',
+            $composer.' dump-autoload',
             $composer.' run-script post-autoload-dump',
         ];
 
@@ -488,7 +502,14 @@ class InitCommand extends Command
             }, $commands);
         }
 
-        $process = Process::fromShellCommandline(implode(' && ', $commands), $this->getDirectoryInput(), null, null, null);
+        $commandLine = implode(' && ', $commands);
+        $cwd = $this->getDirectoryInput();
+
+        if (method_exists(Process::class, 'fromShellCommandline')) {
+            $process = call_user_func_array([Process::class, 'fromShellCommandline'], [$commandLine, $cwd, null, null, null]);
+        } else {
+            $process = new Process($commandLine, $cwd, null, null, null);
+        }
 
         if ('\\' !== DIRECTORY_SEPARATOR && file_exists('/dev/tty') && is_readable('/dev/tty')) {
             try {

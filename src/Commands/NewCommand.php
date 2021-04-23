@@ -56,7 +56,6 @@ class NewCommand extends Command
     /**
      * Execute the console command.
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
     protected function handle()
@@ -86,7 +85,6 @@ class NewCommand extends Command
      * @param        $zipFile
      * @param string $version
      * @return $this
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function download($zipFile, $version = '')
     {

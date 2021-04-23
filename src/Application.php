@@ -16,21 +16,14 @@ class Application extends \Foris\Easy\Console\Application
 
     /**
      * Application constructor.
-     *
-     * @param array $options
      */
-    public function __construct(array $options = [])
+    public function __construct()
     {
-        parent::__construct(array_merge($options, [
-            'name' => 'Easy sdk Installer',
-            'version' => self::VERSION,
-        ]));
+        parent::__construct(null, 'Easy sdk Installer', self::VERSION);
     }
 
     /**
      * Register the commands for the application.
-     *
-     * @throws \ReflectionException
      */
     protected function commands()
     {
