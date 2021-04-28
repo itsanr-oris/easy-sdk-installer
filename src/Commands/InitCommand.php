@@ -4,6 +4,7 @@
 namespace Foris\Easy\Sdk\Installer\Commands;
 
 use Foris\Easy\Console\Commands\Command;
+use Foris\Easy\Support\Filesystem;
 use Foris\Easy\Support\Str;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -444,17 +445,7 @@ class InitCommand extends Command
     {
         $basePath = getcwd() . '/' . $this->getDirectoryInput();
 
-        $files = [
-            $basePath . '/src/Application.php',
-            $basePath . '/src/Hello/Hello.php',
-            $basePath . '/src/Console/Application.php',
-            $basePath . '/tests/TestCase.php',
-            $basePath . '/tests/Hello/HelloComponentTest.php',
-            $basePath . '/tests/Logger/GetLoggerInstanceTest.php',
-            $basePath . '/artisan',
-        ];
-
-        foreach ($files as $file) {
+        foreach (Filesystem::scanFiles($basePath) as $file) {
             file_put_contents($file, str_replace($originNamespace, $namespace, file_get_contents($file)));
         }
 
