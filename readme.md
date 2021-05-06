@@ -12,6 +12,8 @@
 composer global require f-oris/easy-sdk-installer
 ```
 
+> 注意需要将`~/.composer/vendor/bin`目录设置到`$path`环境变量中，否则无法识别出`easy-sdk`命令
+
 ## 使用
 
 #### 创建SDK项目（推荐）
